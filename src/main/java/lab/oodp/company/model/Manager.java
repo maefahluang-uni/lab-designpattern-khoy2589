@@ -11,7 +11,7 @@ import java.util.Objects;
  * Each Manager can manage many Employees, but each Employee can only have one direct Manager.
  */
 public class Manager extends Employee {
-
+    private final List<Employee> employees = new ArrayList<>();
 
     /**
      * Creates a new manager
@@ -34,7 +34,7 @@ public class Manager extends Employee {
      */
     public List<Employee> getEmployees() {
         // TODO complete this
-        return null;
+        return Collections.unmodifiableList(employees);
     }
 
     /**
@@ -47,6 +47,13 @@ public class Manager extends Employee {
      */
     public void addEmployee(Employee employee) {
         // TODO complete this
+        if(employee == null) throw new NullPointerException("employee cannot be null");
+        if(employee.manager != null){
+            employee.manager.removeEmployee(employee);
+        }
+        employee.manager = this;
+        this.employees.add(employee);
+
     }
 
     /**
@@ -58,6 +65,11 @@ public class Manager extends Employee {
      */
     public void removeEmployee(Employee employee) {
         // TODO complete this
+        if(employee == null) throw new NullPointerException("employee cannot be null");
+        if(this.employees.contains(employee)){
+            employee.manager = null;
+            this.employees.remove(employee);
+        }
     }
 
     /**
@@ -95,7 +107,17 @@ public class Manager extends Employee {
      */
     public List<Employee> getAllEmployees() {
         // TODO complete this
-        return null;
+        List<Employee> all = new ArrayList<>();
+        all.add(this);
+
+        for(Employee e: employees){
+            if(e instanceof Manager){
+                all.addAll(((Manager) e).getAllEmployees());
+            }else {
+                all.add(e);
+            }
+        }
+        return all;
     }
 
     /**
@@ -109,6 +131,24 @@ public class Manager extends Employee {
      * @return true if the object meets the conditions outlined above, false otherwise
      */
     // TODO override and implement equals()
+    @Override
+    public boolean equals(Object o){
+        if(this == o)return true;
+
+        if(o == null || getClass() != o.getClass()) return false;
+
+        if(!super.equals(o)) return false;
+
+        Manager manager = (Manager) o;
+        return employees.equals(manager.employees);
+
+    }
+
+    @Override
+    public int hashCode(){
+        return Objects.hash(super.hashCode(), employees);
+    }
+
 
 
 }
